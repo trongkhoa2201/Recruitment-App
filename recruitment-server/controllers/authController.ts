@@ -8,7 +8,8 @@ interface AuthRequest extends Request {
 }
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password } = req.body;
+  const role = 'user';
 
   try {
     if (!["admin", "recruiter"].includes(role)) {
@@ -16,7 +17,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
     const hashed = await bcrypt.hash(password, 10);
-    await User.create({ name, email, password: hashed });
+    await User.create({ name, email, password: hashed, role });
     res.status(201).json({ message: "User created successfully" });
   } catch (error: any) {
     res.status(400).json({

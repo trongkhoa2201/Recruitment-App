@@ -8,8 +8,20 @@ import { Dropdown } from "react-bootstrap";
 import "../styles/jobList.css";
 
 function JobsList() {
+
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const username = localStorage.getItem("username") || "";
+  const getUserShortName = (name: String) => {
+    if (!name) return "Profile";
+    const parts = name.trim().split(" ");
+    const first = parts[parts.length - 1];
+    const lastInitial = parts.length > 1 ? parts[0][0].toUpperCase() : "";
+    return `${first} ${lastInitial}.`;
+  };
+
+  const shortName = getUserShortName(username);
+
   const dispatch = useAppDispatch();
   const { items, loading, error } = useAppSelector((state) => state.jobs);
 
@@ -43,7 +55,7 @@ function JobsList() {
                   {token ? (
                     <>
                       <Dropdown.Item onClick={() => navigate("/profile")}>
-                        Profile
+                        {shortName}
                       </Dropdown.Item>
                       <Dropdown.Item onClick={handleLogout}>
                         Logout

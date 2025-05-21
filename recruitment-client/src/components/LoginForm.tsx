@@ -9,9 +9,11 @@ import {
   Box,
 } from "@mui/material";
 
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginForm: React.FC = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -31,19 +33,24 @@ const LoginForm: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-    try {
-      await loginUser(formData);
-      alert("Đăng nhập thành công!");
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Đăng nhập thất bại");
-    }
-  };
+  e.preventDefault();
+  const validationErrors = validate();
+  if (Object.keys(validationErrors).length > 0) {
+    setErrors(validationErrors);
+    return;
+  }
+  try {
+    const res = await loginUser(formData);
+
+    const { token, user } = res;
+    localStorage.setItem("token", token);
+    localStorage.setItem("username", user.name);
+    alert("Đăng nhập thành công!");
+    navigate("/");
+  } catch (err: any) {
+    alert(err.response?.data?.message || "Đăng nhập thất bại");
+  }
+};
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
