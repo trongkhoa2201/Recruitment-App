@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import jobRoutes from './routes/jobRoutes';
+import authRoutes from './routes/authRoutes';
 import User from './models/user';
 import Job from './models/job';
 import JobLog from './models/jobLog';
@@ -36,6 +37,7 @@ app.get('/api/test', (req: Request, res: Response) => {
 
 // Routes
 app.use('/api/jobs', jobRoutes);
+app.use('/api', authRoutes);
 
 // Start server
 app.listen(PORT, () => {

@@ -8,9 +8,13 @@ interface AuthRequest extends Request {
 }
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   try {
+    if (!["admin", "recruiter"].includes(role)) {
+      res.status(400).json({ message: "Invalid role" });
+      return;
+    }
     const hashed = await bcrypt.hash(password, 10);
     await User.create({ name, email, password: hashed });
     res.status(201).json({ message: "User created successfully" });
@@ -38,7 +42,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
   }
 
   const token = jwt.sign(
-    { id: user._id.toString() },
+    { id: user._id.toString(), role: user.role },
     process.env.JWT_SECRET as string,
     { expiresIn: "2h" }
   );
@@ -49,6 +53,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
     },
   });
 };
