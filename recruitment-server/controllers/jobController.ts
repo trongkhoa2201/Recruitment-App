@@ -24,7 +24,7 @@ const logAction = async ({
 const getUserIdFromRequest = (req: Request): mongoose.Types.ObjectId => {
   return req.body.userId
     ? new mongoose.Types.ObjectId(req.body.userId)
-    : new mongoose.Types.ObjectId(); // fallback
+    : new mongoose.Types.ObjectId();
 };
 
 // 🔹 Create
@@ -64,11 +64,12 @@ export const getJobById = async (req: Request, res: Response) => {
     const job = await Job.findById(req.params.id);
     if (!job) return res.status(404).json({ message: "Job not found" });
     res.json(job);
-  } catch (err) {
-    res.status(500).json({ message: "Get failed", error: err });
+  } catch (err: unknown) {
+    res
+      .status(500)
+      .json({ message: "Get failed", error: (err as Error).message });
   }
 };
-
 // 🔹 Update
 export const updateJob = async (req: Request, res: Response) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {

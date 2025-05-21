@@ -1,0 +1,9 @@
+.header {
+    width: 100%;
+    height: auto;
+}
+.DropdownContainer{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}

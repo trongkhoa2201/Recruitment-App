@@ -3,7 +3,13 @@ import { useAppDispatch, useAppSelector } from "../store/hook";
 import { getJobs } from "../features/jobs/jobSlice";
 import { Table, Form, Spinner } from "react-bootstrap";
 
+import { useNavigate } from "react-router-dom";
+import { Dropdown } from "react-bootstrap";
+import "../styles/jobList.css";
+
 function JobsList() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
   const dispatch = useAppDispatch();
   const { items, loading, error } = useAppSelector((state) => state.jobs);
 
@@ -13,9 +19,52 @@ function JobsList() {
     dispatch(getJobs({ search }));
   }, [dispatch, search]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    navigate("/login");
+  };
+
   return (
     <div>
-      <h2>Job Listings</h2>
+      <header>
+        <div className="container-fluid">
+          <div className="row">
+            <div className="title col-sm-4">
+              <h2>Job Listings</h2>
+            </div>
+            <div className="DropdownContainer col-sm-8">
+              <Dropdown>
+                <Dropdown.Toggle variant="light" id="dropdown-user">
+                  Settings
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu align="end">
+                  {token ? (
+                    <>
+                      <Dropdown.Item onClick={() => navigate("/profile")}>
+                        Profile
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={handleLogout}>
+                        Logout
+                      </Dropdown.Item>
+                    </>
+                  ) : (
+                    <>
+                      <Dropdown.Item onClick={() => navigate("/login")}>
+                        Login
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => navigate("/register")}>
+                        Register
+                      </Dropdown.Item>
+                    </>
+                  )}
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          </div>
+        </div>
+      </header>
 
       <Form.Control
         type="text"

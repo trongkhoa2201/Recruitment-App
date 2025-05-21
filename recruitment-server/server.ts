@@ -1,16 +1,17 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors');
+import express, { Application, Request, Response } from 'express';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import cors from 'cors';
 
-const User = require('./models/User');
-const Job = require('./models/job');
-const JobLog = require('./models/jobLog');
+import jobRoutes from './routes/jobRoutes';
+import User from './models/user';
+import Job from './models/job';
+import JobLog from './models/jobLog';
 
 // Load environment variables
 dotenv.config();
 
-const app = express();
+const app: Application = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/recruitment-app';
 
@@ -22,18 +23,16 @@ app.use(express.json());
 mongoose
   .connect(MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.error('MongoDB connection error:', err));
+  .catch((err: Error) => console.error('MongoDB connection error:', err));
 
 // Basic route
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('Recruitment App API is running');
 });
 
-app.get('/api/test', (req, res) => {
+app.get('/api/test', (req: Request, res: Response) => {
   res.json({ message: 'API is working' });
 });
-
-const jobRoutes = require('./routes/jobs');
 
 // Routes
 app.use('/api/jobs', jobRoutes);
