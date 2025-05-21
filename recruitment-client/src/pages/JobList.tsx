@@ -1,17 +1,32 @@
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hook";
-import { getJobs } from "../features/jobs/jobSlice";
-import { Table, Form, Spinner } from "react-bootstrap";
-
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Stack,
+} from "@mui/material";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store/Store";
+import { getJobs, deleteJob } from "../features/jobs/jobSlice";
 import { useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
-import "../styles/jobList.css";
 
-function JobsList() {
-
+export default function JobList({ role }: { role: string }) {
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const jobs = useSelector((state: RootState) => state.jobs.items);
+  const loading = useSelector((state: RootState) => state.jobs.loading);
+
   const token = localStorage.getItem("token");
   const username = localStorage.getItem("username") || "";
+
   const getUserShortName = (name: String) => {
     if (!name) return "Profile";
     const parts = name.trim().split(" ");
@@ -22,98 +37,123 @@ function JobsList() {
 
   const shortName = getUserShortName(username);
 
-  const dispatch = useAppDispatch();
-  const { items, loading, error } = useAppSelector((state) => state.jobs);
-
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    dispatch(getJobs({ search }));
-  }, [dispatch, search]);
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     navigate("/login");
   };
 
+  useEffect(() => {
+    dispatch(getJobs({}));
+  }, [dispatch]);
+
+  const handleDelete = async (id: string) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      await dispatch(deleteJob(id));
+    }
+  };
+
+  const handleEdit = (jobId: string) => {
+    navigate(`/jobs/edit/${jobId}`);
+  };
+
+  const handleCreate = () => {
+    navigate("/jobs/create");
+  };
+
   return (
-    <div>
-      <header>
-        <div className="container-fluid">
-          <div className="row">
-            <div className="title col-sm-4">
-              <h2>Job Listings</h2>
-            </div>
-            <div className="DropdownContainer col-sm-8">
-              <Dropdown>
-                <Dropdown.Toggle variant="light" id="dropdown-user">
-                  Settings
-                </Dropdown.Toggle>
+    <Box sx={{ p: 3 }}>
+      <Stack direction="row" justifyContent="space-between" mb={2}>
+        <Typography variant="h4">Job List</Typography>
+        {role === "recruiter" && (
+          <Button variant="contained" onClick={handleCreate}>
+            Create Job
+          </Button>
+        )}
+        <Dropdown>
+          <Dropdown.Toggle variant="light" id="dropdown-user">
+            Settings
+          </Dropdown.Toggle>
 
-                <Dropdown.Menu align="end">
-                  {token ? (
-                    <>
-                      <Dropdown.Item onClick={() => navigate("/profile")}>
-                        {shortName}
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={handleLogout}>
-                        Logout
-                      </Dropdown.Item>
-                    </>
-                  ) : (
-                    <>
-                      <Dropdown.Item onClick={() => navigate("/login")}>
-                        Login
-                      </Dropdown.Item>
-                      <Dropdown.Item onClick={() => navigate("/register")}>
-                        Register
-                      </Dropdown.Item>
-                    </>
-                  )}
-                </Dropdown.Menu>
-              </Dropdown>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <Form.Control
-        type="text"
-        placeholder="Search by title or description"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="mb-3"
-      />
+          <Dropdown.Menu align="end">
+            {token ? (
+              <>
+                <Dropdown.Item onClick={() => navigate("/profile")}>
+                  {shortName}
+                </Dropdown.Item>
+                <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+              </>
+            ) : (
+              <>
+                <Dropdown.Item onClick={() => navigate("/login")}>
+                  Login
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => navigate("/register")}>
+                  Register
+                </Dropdown.Item>
+              </>
+            )}
+          </Dropdown.Menu>
+        </Dropdown>
+      </Stack>
 
       {loading ? (
-        <Spinner animation="border" />
-      ) : error ? (
-        <div className="text-danger">Error: {error}</div>
+        <Typography>Loading...</Typography>
       ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Description</th>
-              <th>Tags</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((job: any) => (
-              <tr key={job._id}>
-                <td>{job.title}</td>
-                <td>{job.description}</td>
-                <td>{job.tags?.join(", ")}</td>
-                <td>{new Date(job.createdAt).toLocaleDateString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>
+                  <strong>Title</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Description</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Tags</strong>
+                </TableCell>
+                {role === "recruiter" && (
+                  <TableCell>
+                    <strong>Actions</strong>
+                  </TableCell>
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {jobs.map((job) => (
+                <TableRow key={job._id}>
+                  <TableCell>{job.title}</TableCell>
+                  <TableCell>{job.description}</TableCell>
+                  <TableCell>{job.tags?.join(", ")}</TableCell>
+                  {role === "recruiter" && (
+                    <TableCell>
+                      <Stack direction="row" spacing={1}>
+                        <Button
+                          variant="outlined"
+                          color="primary"
+                          size="small"
+                          onClick={() => handleEdit(job._id)}
+                        >
+                          Update
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          onClick={() => handleDelete(job._id)}
+                        >
+                          Delete
+                        </Button>
+                      </Stack>
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
-    </div>
+    </Box>
   );
 }
-
-export default JobsList;

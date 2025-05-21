@@ -13,13 +13,33 @@ export const getJobs = createAsyncThunk(
   }
 );
 
+export const deleteJob = createAsyncThunk("jobs/delete", async (id: string) => {
+  await api.deleteJob(id);
+  return id;
+});
+
+export const createJob = createAsyncThunk(
+  "jobs/create",
+  async (jobData: any) => {
+    const res = await api.createJob(jobData);
+    return res.data;
+  }
+);
+
+export const updateJob = createAsyncThunk(
+  "jobs/update",
+  async ({ id, data }: { id: string; data: any }) => {
+    const res = await api.updateJob(id, data);
+    return res.data;
+  }
+);
 
 const jobSlice = createSlice({
   name: "jobs",
   initialState: {
-    items: [],
+    items: [] as any[],
     loading: false,
-    error: null,
+    error: null as string | null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -34,7 +54,24 @@ const jobSlice = createSlice({
       })
       .addCase(getJobs.rejected, (state, action) => {
         state.loading = false;
-        state.error = null;
+        state.error = action.error.message || null;
+      })
+
+      .addCase(deleteJob.fulfilled, (state, action) => {
+        state.items = state.items.filter((job) => job._id !== action.payload);
+      })
+
+      .addCase(createJob.fulfilled, (state, action) => {
+        state.items.push(action.payload);
+      })
+
+      .addCase(updateJob.fulfilled, (state, action) => {
+        const index = state.items.findIndex(
+          (job) => job._id === action.payload._id
+        );
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
       });
   },
 });
