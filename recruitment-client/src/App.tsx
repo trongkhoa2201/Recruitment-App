@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import JobsList from './pages/JobList';
+
 
 function App() {
-  const [message, setMessage] = useState<string>('');
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/test')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => console.error('Error fetching API:', err));
-  }, []);
 
   return (
     <div>
-      <h1>Recruitment App Frontend</h1>
-      <p>API Response: {message}</p>
+      <JobsList/>
     </div>
   );
 }

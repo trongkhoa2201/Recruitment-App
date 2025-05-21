@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
+const User = require('./models/User');
+const Job = require('./models/job');
+const JobLog = require('./models/jobLog');
+
 // Load environment variables
 dotenv.config();
 
@@ -28,6 +32,11 @@ app.get('/', (req, res) => {
 app.get('/api/test', (req, res) => {
   res.json({ message: 'API is working' });
 });
+
+const jobRoutes = require('./routes/jobs');
+
+// Routes
+app.use('/api/jobs', jobRoutes);
 
 // Start server
 app.listen(PORT, () => {
