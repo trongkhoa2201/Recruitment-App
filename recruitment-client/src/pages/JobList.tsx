@@ -1,15 +1,9 @@
 import {
-  Box,
-  Button,
+  Button, // We'll replace this
   Typography,
   Stack,
   TablePagination,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -104,7 +98,7 @@ export default function JobList({ role }: { role: string }) {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
+    <div className="container">
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -143,7 +137,7 @@ export default function JobList({ role }: { role: string }) {
         justifyContent="space-between"
         alignItems="center"
         mb={3}
-        sx={{ maxWidth: "100%" }}
+        className="search-create-container"
       >
         <TextField
           label="Search jobs"
@@ -154,21 +148,12 @@ export default function JobList({ role }: { role: string }) {
             setSearchTerm(e.target.value);
             setPage(0);
           }}
-          sx={{
-            width: { xs: "100%", sm: 400 },
-          }}
+          className="search-input"
         />
         {role === "recruiter" && (
-          <Button
-            variant="contained"
-            onClick={handleCreate}
-            sx={{
-              height: "fit-content",
-              px: 3,
-            }}
-          >
+          <button onClick={handleCreate} className="create-button">
             Create Job
-          </Button>
+          </button>
         )}
       </Stack>
 
@@ -200,24 +185,20 @@ export default function JobList({ role }: { role: string }) {
                   <td className="td-table">{job.tags?.join(", ")}</td>
                   {role === "recruiter" && (
                     <td className="td-table">
-                      <Stack direction="row" spacing={1}>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          size="small"
+                      <div className="actions-stack">
+                        <button
+                          className="action-btn update-btn"
                           onClick={() => handleEdit(job._id)}
                         >
                           Update
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
+                        </button>
+                        <button
+                          className="action-btn delete-btn"
                           onClick={() => handleOpenDialog(job._id)}
                         >
                           Delete
-                        </Button>
-                      </Stack>
+                        </button>
+                      </div>
                     </td>
                   )}
                 </tr>
@@ -281,32 +262,35 @@ export default function JobList({ role }: { role: string }) {
         </div>
       )}
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this job? This action cannot be
-            undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={() => jobToDelete && handleDelete(jobToDelete)}
-            color="error"
-            autoFocus
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+      {openDialog && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <div className="modal-header">
+              <h2 className="modal-title">Confirm Deletion</h2>
+            </div>
+            <div className="modal-content">
+              <p>
+                Are you sure you want to delete this job? This action cannot be
+                undone.
+              </p>
+            </div>
+            <div className="modal-actions">
+              <button
+                onClick={handleCloseDialog}
+                className="modal-btn cancel-btn"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => jobToDelete && handleDelete(jobToDelete)}
+                className="modal-btn delete-btn"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
