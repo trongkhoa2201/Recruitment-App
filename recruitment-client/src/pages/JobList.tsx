@@ -10,8 +10,15 @@ import {
   Paper,
   Typography,
   Stack,
+  TablePagination,
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/Store";
 import { getJobs, deleteJob } from "../features/jobs/jobSlice";
@@ -49,9 +56,8 @@ export default function JobList({ role }: { role: string }) {
   }, [dispatch]);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this job?")) {
-      await dispatch(deleteJob(id));
-    }
+    await dispatch(deleteJob(id));
+    setOpenDialog(false);
   };
 
   const handleEdit = (jobId: string) => {
@@ -62,20 +68,61 @@ export default function JobList({ role }: { role: string }) {
     navigate("/jobs/create");
   };
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [openDialog, setOpenDialog] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState<string | null>(null);
+
+  const filteredJobs = jobs.filter(
+    (job) =>
+      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      job.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleChangePage = (
+    event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+
+  const paginatedJobs = filteredJobs.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
+  const handleOpenDialog = (id: string) => {
+    setJobToDelete(id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setJobToDelete(null);
+  };
+
   return (
     <Box sx={{ p: 3 }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+      >
         <Typography variant="h4">Job List</Typography>
-        {role === "recruiter" && (
-          <Button variant="contained" onClick={handleCreate}>
-            Create Job
-          </Button>
-        )}
         <Dropdown>
           <Dropdown.Toggle variant="light" id="dropdown-user">
             Settings
           </Dropdown.Toggle>
-
           <Dropdown.Menu align="end">
             {token ? (
               <>
@@ -96,6 +143,40 @@ export default function JobList({ role }: { role: string }) {
             )}
           </Dropdown.Menu>
         </Dropdown>
+      </Stack>
+
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={3}
+        sx={{ maxWidth: "100%" }}
+      >
+        <TextField
+          label="Search jobs"
+          variant="outlined"
+          size="medium"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setPage(0);
+          }}
+          sx={{
+            width: { xs: "100%", sm: 400 },
+          }}
+        />
+        {role === "recruiter" && (
+          <Button
+            variant="contained"
+            onClick={handleCreate}
+            sx={{
+              height: "fit-content",
+              px: 3,
+            }}
+          >
+            Create Job
+          </Button>
+        )}
       </Stack>
 
       {loading ? (
@@ -122,7 +203,7 @@ export default function JobList({ role }: { role: string }) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {jobs.map((job) => (
+              {paginatedJobs.map((job) => (
                 <TableRow key={job._id}>
                   <TableCell
                     sx={{
@@ -151,7 +232,7 @@ export default function JobList({ role }: { role: string }) {
                           variant="outlined"
                           color="error"
                           size="small"
-                          onClick={() => handleDelete(job._id)}
+                          onClick={() => handleOpenDialog(job._id)} // Mở Dialog khi nhấn Delete
                         >
                           Delete
                         </Button>
@@ -162,8 +243,44 @@ export default function JobList({ role }: { role: string }) {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            component="div"
+            count={filteredJobs.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}
+          />
         </TableContainer>
       )}
+
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this job? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDialog} color="primary">
+            Cancel
+          </Button>
+          <Button
+            onClick={() => jobToDelete && handleDelete(jobToDelete)}
+            color="error"
+            autoFocus
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
