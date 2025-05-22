@@ -1,13 +1,6 @@
 import {
   Box,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Typography,
   Stack,
   TablePagination,
@@ -24,6 +17,7 @@ import { AppDispatch, RootState } from "../store/Store";
 import { getJobs, deleteJob } from "../features/jobs/jobSlice";
 import { useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
+import "../styles/jobList.css";
 
 export default function JobList({ role }: { role: string }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -109,7 +103,6 @@ export default function JobList({ role }: { role: string }) {
     setJobToDelete(null);
   };
 
-
   return (
     <Box sx={{ p: 3 }}>
       <Stack
@@ -182,43 +175,31 @@ export default function JobList({ role }: { role: string }) {
       {loading ? (
         <Typography>Loading...</Typography>
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>
-                  <strong>Title</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>Description</strong>
-                </TableCell>
-                <TableCell>
-                  <strong>Tags</strong>
-                </TableCell>
-                {role === "recruiter" && (
-                  <TableCell>
-                    <strong>Actions</strong>
-                  </TableCell>
-                )}
-              </TableRow>
-            </TableHead>
-            <TableBody>
+        <div className="table-wrapper">
+          <table className="table-container">
+            <thead>
+              <tr className="table-header">
+                <th className="th-table">Title</th>
+                <th className="th-table">Description</th>
+                <th className="th-table">Tags</th>
+                {role === "recruiter" && <th className="th-table">Actions</th>}
+              </tr>
+            </thead>
+            <tbody>
               {paginatedJobs.map((job) => (
-                <TableRow key={job._id}>
-                  <TableCell
-                    sx={{
-                      cursor: "pointer",
-                      color: "primary.main",
-                      textDecoration: "underline",
-                    }}                    
-                    onClick={() => navigate(`/jobs/${job._id}`)}
-                  >
-                    {job.title}
-                  </TableCell>
-                  <TableCell>{job.description}</TableCell>
-                  <TableCell>{job.tags?.join(", ")}</TableCell>
+                <tr key={job._id} className="table-row">
+                  <td className="td-table">
+                    <span
+                      className="job-link"
+                      onClick={() => navigate(`/jobs/${job._id}`)}
+                    >
+                      {job.title}
+                    </span>
+                  </td>
+                  <td className="td-table">{job.description}</td>
+                  <td className="td-table">{job.tags?.join(", ")}</td>
                   {role === "recruiter" && (
-                    <TableCell>
+                    <td className="td-table">
                       <Stack direction="row" spacing={1}>
                         <Button
                           variant="outlined"
@@ -232,27 +213,72 @@ export default function JobList({ role }: { role: string }) {
                           variant="outlined"
                           color="error"
                           size="small"
-                          onClick={() => handleOpenDialog(job._id)} // Mở Dialog khi nhấn Delete
+                          onClick={() => handleOpenDialog(job._id)}
                         >
                           Delete
                         </Button>
                       </Stack>
-                    </TableCell>
+                    </td>
                   )}
-                </TableRow>
+                </tr>
               ))}
-            </TableBody>
-          </Table>
-          <TablePagination
-            component="div"
-            count={filteredJobs.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]}
-          />
-        </TableContainer>
+            </tbody>
+          </table>
+
+          <div className="pagination-container">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 0))}
+              disabled={page === 0}
+              className="pagination-btn"
+            >
+              Prev
+            </button>
+
+            {Array.from({
+              length: Math.ceil(filteredJobs.length / rowsPerPage),
+            }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`pagination-btn ${i === page ? "active" : ""}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() =>
+                setPage((prev) =>
+                  Math.min(
+                    prev + 1,
+                    Math.ceil(filteredJobs.length / rowsPerPage) - 1
+                  )
+                )
+              }
+              disabled={
+                page >= Math.ceil(filteredJobs.length / rowsPerPage) - 1
+              }
+              className="pagination-btn"
+            >
+              Next
+            </button>
+
+            <select
+              value={rowsPerPage}
+              onChange={(e) => {
+                setRowsPerPage(Number(e.target.value));
+                setPage(0);
+              }}
+              className="pagination-select"
+            >
+              {[5, 10, 25].map((option) => (
+                <option key={option} value={option}>
+                  {option} / page
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       )}
 
       <Dialog
