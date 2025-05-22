@@ -23,6 +23,27 @@ export const deleteJob = createAsyncThunk("jobs/delete", async (id: string) => {
   return id;
 });
 
+export const deleteJobsBulk = createAsyncThunk<
+  string[],
+  string[],
+  { rejectValue: string }
+>("jobs/deleteBulk", async (ids, { rejectWithValue }) => {
+  const token = localStorage.getItem("token");
+  if (!token) return rejectWithValue("No token found");
+
+  try {
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    await api.deleteJobBulk("/api/jobs/delete-bulk", { ids }, config);
+    return ids; // Trả về danh sách ID để cập nhật lại Redux state
+  } catch (error: any) {
+    return rejectWithValue(
+      error?.response?.data?.message || "Failed to delete jobs"
+    );
+  }
+});
+
 export const createJob = createAsyncThunk(
   "jobs/create",
   async (jobData: any) => {
@@ -67,6 +88,14 @@ const jobSlice = createSlice({
       .addCase(getJobs.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || null;
+      })
+      .addCase(deleteJobsBulk.fulfilled, (state, action) => {
+        state.items = state.items.filter(
+          (job) => !action.payload.includes(job._id)
+        );
+      })
+      .addCase(deleteJobsBulk.rejected, (state, action) => {
+        state.error = action.payload || "Delete bulk failed";
       })
 
       .addCase(deleteJob.fulfilled, (state, action) => {

@@ -1,10 +1,4 @@
-import {
-  Button, // We'll replace this
-  Typography,
-  Stack,
-  TablePagination,
-  TextField,
-} from "@mui/material";
+import { Typography, Stack, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/Store";
@@ -44,8 +38,25 @@ export default function JobList({ role }: { role: string }) {
   }, [dispatch]);
 
   const handleDelete = async (id: string) => {
-    await dispatch(deleteJob(id));
-    setOpenDialog(false);
+    if (window.confirm("Are you sure you want to delete this job? This action cannot be undone.")) {
+      await dispatch(deleteJob(id));
+    }
+  };
+
+  const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
+  const toggleJobSelection = (id: string) => {
+    setSelectedJobs((prev) =>
+      prev.includes(id) ? prev.filter((jid) => jid !== id) : [...prev, id]
+    );
+  };
+
+  const handleDeleteSelected = async () => {
+    if (window.confirm(`Are you sure you want to delete ${selectedJobs.length} jobs? This action cannot be undone.`)) {
+      for (const id of selectedJobs) {
+        await dispatch(deleteJob(id));
+      }
+      setSelectedJobs([]);
+    }
   };
 
   const handleEdit = (jobId: string) => {
@@ -59,8 +70,6 @@ export default function JobList({ role }: { role: string }) {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
-  const [openDialog, setOpenDialog] = useState(false);
-  const [jobToDelete, setJobToDelete] = useState<string | null>(null);
 
   const filteredJobs = jobs.filter(
     (job) =>
@@ -68,34 +77,10 @@ export default function JobList({ role }: { role: string }) {
       job.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number
-  ) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   const paginatedJobs = filteredJobs.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
-  const handleOpenDialog = (id: string) => {
-    setJobToDelete(id);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setJobToDelete(null);
-  };
 
   return (
     <div className="container">
@@ -131,7 +116,6 @@ export default function JobList({ role }: { role: string }) {
           </Dropdown.Menu>
         </Dropdown>
       </Stack>
-
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -151,12 +135,21 @@ export default function JobList({ role }: { role: string }) {
           className="search-input"
         />
         {role === "recruiter" && (
-          <button onClick={handleCreate} className="create-button">
-            Create Job
-          </button>
+          <div>
+            <button onClick={handleCreate} className="create-button">
+              Create Job
+            </button>
+
+            <button
+              onClick={handleDeleteSelected}
+              className="delete-button"
+              style={{ marginBottom: "16px" }}
+            >
+              Delete Selected ({selectedJobs.length})
+            </button>
+          </div>
         )}
       </Stack>
-
       {loading ? (
         <Typography>Loading...</Typography>
       ) : (
@@ -164,6 +157,7 @@ export default function JobList({ role }: { role: string }) {
           <table className="table-container">
             <thead>
               <tr className="table-header">
+                <th className="th-table"></th>
                 <th className="th-table">Title</th>
                 <th className="th-table">Description</th>
                 <th className="th-table">Tags</th>
@@ -173,6 +167,15 @@ export default function JobList({ role }: { role: string }) {
             <tbody>
               {paginatedJobs.map((job) => (
                 <tr key={job._id} className="table-row">
+                  {role === "recruiter" && (
+                    <td className="td-table">
+                      <input
+                        type="checkbox"
+                        checked={selectedJobs.includes(job._id)}
+                        onChange={() => toggleJobSelection(job._id)}
+                      />
+                    </td>
+                  )}
                   <td className="td-table">
                     <span
                       className="job-link"
@@ -194,7 +197,7 @@ export default function JobList({ role }: { role: string }) {
                         </button>
                         <button
                           className="action-btn delete-btn"
-                          onClick={() => handleOpenDialog(job._id)}
+                          onClick={() => handleDelete(job._id)}
                         >
                           Delete
                         </button>
@@ -258,36 +261,6 @@ export default function JobList({ role }: { role: string }) {
                 </option>
               ))}
             </select>
-          </div>
-        </div>
-      )}
-
-      {openDialog && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2 className="modal-title">Confirm Deletion</h2>
-            </div>
-            <div className="modal-content">
-              <p>
-                Are you sure you want to delete this job? This action cannot be
-                undone.
-              </p>
-            </div>
-            <div className="modal-actions">
-              <button
-                onClick={handleCloseDialog}
-                className="modal-btn cancel-btn"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => jobToDelete && handleDelete(jobToDelete)}
-                className="modal-btn delete-btn"
-              >
-                Delete
-              </button>
-            </div>
           </div>
         </div>
       )}

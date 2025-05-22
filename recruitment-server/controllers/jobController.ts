@@ -131,13 +131,54 @@ export const deleteJob = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const deleteJobsBulk = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids)) {
+      res
+        .status(400)
+        .json({ message: "Invalid request, ids must be an array" });
+      return;
+    }
+
+    const objectIds = ids
+      .filter(id => mongoose.Types.ObjectId.isValid(id))
+      .map(id => new mongoose.Types.ObjectId(id));
+
+    if (objectIds.length === 0) {
+      res.status(400).json({ message: "No valid ObjectId found in ids" });
+      return;
+    }
+
+    const result = await Job.deleteMany({ _id: { $in: ids } });
+
+    res.status(200).json({
+      message: "Jobs deleted successfully",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    console.error("Delete bulk error:", error);
+    res.status(500).json({
+      message: "Server error while deleting jobs",
+      error: error instanceof Error ? error.message : JSON.stringify(error),
+    });
+  }
+};
+
 // 🔹 Get Applicants for a Job
-export const getApplicants = async (req: Request, res: Response): Promise<void> => {
+export const getApplicants = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const jobId = req.params.id;
 
   if (!mongoose.Types.ObjectId.isValid(jobId)) {
     res.status(400).json({ message: "Invalid job ID" });
-    return
+    return;
   }
 
   try {
@@ -151,21 +192,20 @@ export const getApplicants = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-
 // 🔹 Apply Job
 export const applyJob = async (req: Request, res: Response): Promise<void> => {
   const jobId = req.params.id;
 
   if (!mongoose.Types.ObjectId.isValid(jobId)) {
     res.status(400).json({ message: "Invalid job ID" });
-    return
+    return;
   }
 
   try {
     const job = await Job.findById(jobId);
     if (!job) {
       res.status(404).json({ message: "Job not found" });
-      return
+      return;
     }
 
     const userId = getUserIdFromRequest(req);
@@ -178,7 +218,7 @@ export const applyJob = async (req: Request, res: Response): Promise<void> => {
 
     if (existingLog) {
       res.status(400).json({ message: "You already applied for this job" });
-      return
+      return;
     }
 
     await logAction({

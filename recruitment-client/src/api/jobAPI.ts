@@ -18,5 +18,9 @@ export const updateJob = (id: string, data: JobPayload, config?: any) =>
 export const deleteJob = (id: string, config?: any) =>
   axios.delete(`${API_URL}/${id}`, config);
 
+export const deleteJobBulk = (url: string, data: { ids: string[] }, config?: any) => {
+  return axios.post(url, data, config);
+};
+
 export const fetchJobById = (id: string, config?: any) =>
   axios.get(`${API_URL}/${id}`, config);
