@@ -41,7 +41,7 @@ export default function JobForm({
       if (isEdit && values._id) {
         await dispatch(updateJob({ id: values._id, data: values })).unwrap();
       } else {
-        await dispatch(createJob({ ...values })).unwrap(); // bạn có thể thêm userId từ auth
+        await dispatch(createJob({ ...values })).unwrap();
       }
 
       alert("Success!");

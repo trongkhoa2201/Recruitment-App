@@ -109,13 +109,6 @@ export default function JobList({ role }: { role: string }) {
     setJobToDelete(null);
   };
 
-  const handleClickTitle = (jobId: string) => {
-    if (role === "recruiter") {
-      navigate(`/jobs/edit/${jobId}`);
-    } else {
-      navigate(`/jobs/${jobId}`);
-    }
-  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -217,8 +210,8 @@ export default function JobList({ role }: { role: string }) {
                       cursor: "pointer",
                       color: "primary.main",
                       textDecoration: "underline",
-                    }}
-                    onClick={() => handleClickTitle(job._id)}
+                    }}                    
+                    onClick={() => navigate(`/jobs/${job._id}`)}
                   >
                     {job.title}
                   </TableCell>

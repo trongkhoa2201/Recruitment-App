@@ -3,7 +3,9 @@ import {
   createJob,
   getJobs,
   updateJob,
-  deleteJob
+  deleteJob,
+  applyJob,
+  getApplicants
 } from '../controllers/jobController';
 import { authorizeRoles } from '../middleware/authMiddleware'
 const router = express.Router();
@@ -12,5 +14,7 @@ router.post('/', authorizeRoles('recruiter'), createJob);
 router.get('/', getJobs);
 router.put('/:id', authorizeRoles('recruiter'), updateJob);
 router.delete('/:id', authorizeRoles('recruiter'), deleteJob);
+router.post("/:id/apply", authorizeRoles('user'), applyJob); 
+router.get("/:id/applicants", authorizeRoles('recruiter'), getApplicants);
 
 export default router;

@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/Store";
-import JobForm from "./JobForm"; // Adjust the path to where JobForm is located
+import JobForm from "./JobForm";
 
 function JobEditWrapper() {
   const { id } = useParams(); // Get the job ID from the URL
@@ -20,7 +20,7 @@ function JobEditWrapper() {
         _id: job._id,
         title: job.title,
         description: job.description,
-        tags: job.tags?.join(", ") || "", // Convert tags array to comma-separated string for the form
+        tags: job.tags?.join(", ") || "", 
       }}
       isEdit={true}
     />

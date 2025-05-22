@@ -130,3 +130,66 @@ export const deleteJob = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: "Delete failed", error: err });
   }
 };
+
+// 🔹 Get Applicants for a Job
+export const getApplicants = async (req: Request, res: Response): Promise<void> => {
+  const jobId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(jobId)) {
+    res.status(400).json({ message: "Invalid job ID" });
+    return
+  }
+
+  try {
+    const applicants = await JobLog.find({ jobId, action: "apply" })
+      .populate("userId", "name email") // Bạn có thể chỉnh field ở đây
+      .sort({ timestamp: -1 });
+
+    res.json(applicants);
+  } catch (err) {
+    res.status(500).json({ message: "Fetch applicants failed", error: err });
+  }
+};
+
+
+// 🔹 Apply Job
+export const applyJob = async (req: Request, res: Response): Promise<void> => {
+  const jobId = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(jobId)) {
+    res.status(400).json({ message: "Invalid job ID" });
+    return
+  }
+
+  try {
+    const job = await Job.findById(jobId);
+    if (!job) {
+      res.status(404).json({ message: "Job not found" });
+      return
+    }
+
+    const userId = getUserIdFromRequest(req);
+
+    const existingLog = await JobLog.findOne({
+      jobId,
+      userId,
+      action: "apply",
+    });
+
+    if (existingLog) {
+      res.status(400).json({ message: "You already applied for this job" });
+      return
+    }
+
+    await logAction({
+      jobId: new mongoose.Types.ObjectId(jobId),
+      userId,
+      action: "apply",
+      description: `User ${userId} applied to job ${job.title}`,
+    });
+
+    res.json({ message: "Successfully applied to job" });
+  } catch (err) {
+    res.status(500).json({ message: "Apply failed", error: err });
+  }
+};
