@@ -94,7 +94,6 @@ export default function JobList({ role }: { role: string }) {
     setPage(0);
   };
 
-
   const paginatedJobs = filteredJobs.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -108,6 +107,14 @@ export default function JobList({ role }: { role: string }) {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setJobToDelete(null);
+  };
+
+  const handleClickTitle = (jobId: string) => {
+    if (role === "recruiter") {
+      navigate(`/jobs/edit/${jobId}`);
+    } else {
+      navigate(`/jobs/${jobId}`);
+    }
   };
 
   return (
@@ -211,7 +218,7 @@ export default function JobList({ role }: { role: string }) {
                       color: "primary.main",
                       textDecoration: "underline",
                     }}
-                    onClick={() => navigate(`/jobs/edit/${job._id}`)}
+                    onClick={() => handleClickTitle(job._id)}
                   >
                     {job.title}
                   </TableCell>

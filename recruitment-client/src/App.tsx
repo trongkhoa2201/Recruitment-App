@@ -5,6 +5,7 @@ import LoginForm from './components/LoginForm';
 import JobsList from './pages/JobList';
 import JobForm from './components/JobForm';
 import JobEditWrapper from './components/JobEditWrapper';
+import JobDetail from "./pages/JobDetail";
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/" element={<JobsList role={role}/>} />
         <Route path="/jobs/create" element={<JobForm role={role} initialValues={{ title: "", description: "", tags: "" }} isEdit={false}/>} />
         <Route path="/jobs/edit/:id" element={<JobEditWrapper />} />
+        <Route path="/jobs/:id" element={<JobDetail />}></Route>
       </Routes>
     </BrowserRouter>
     </div>
