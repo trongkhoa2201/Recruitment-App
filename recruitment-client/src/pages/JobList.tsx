@@ -40,6 +40,7 @@ export default function JobList({ role }: { role: string }) {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
@@ -123,7 +124,16 @@ export default function JobList({ role }: { role: string }) {
             <TableBody>
               {jobs.map((job) => (
                 <TableRow key={job._id}>
-                  <TableCell>{job.title}</TableCell>
+                  <TableCell
+                    sx={{
+                      cursor: "pointer",
+                      color: "primary.main",
+                      textDecoration: "underline",
+                    }}
+                    onClick={() => navigate(`/jobs/edit/${job._id}`)}
+                  >
+                    {job.title}
+                  </TableCell>
                   <TableCell>{job.description}</TableCell>
                   <TableCell>{job.tags?.join(", ")}</TableCell>
                   {role === "recruiter" && (

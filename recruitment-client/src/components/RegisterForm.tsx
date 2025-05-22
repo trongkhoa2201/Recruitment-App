@@ -7,19 +7,35 @@ import {
   Typography,
   Paper,
   Box,
+  InputLabel,
+  Select,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const RegisterForm: React.FC = () => {
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    role: "user",
   });
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (e: SelectChangeEvent) => {
+    const { name, value } = e.target;
+    if (name) {
+      setFormData((prev) => ({ ...prev, [name]: value as string  }));
+    }
   };
 
   const validate = () => {
@@ -39,8 +55,10 @@ const RegisterForm: React.FC = () => {
       return;
     }
     try {
+      console.log("Sending formData:", formData);
       await registerUser(formData);
       alert("Đăng ký thành công!");
+      navigate("/login")
     } catch (err: any) {
       alert(err.response?.data?.message || "Đăng ký thất bại");
     }
@@ -84,6 +102,21 @@ const RegisterForm: React.FC = () => {
             helperText={errors.password}
             sx={{ mb: 2 }}
           />
+          <FormControl fullWidth margin="normal">
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleSelectChange}
+              label="Role"
+            >
+              <MenuItem value="user">User</MenuItem>
+              <MenuItem value="recruiter">Recruiter</MenuItem>
+            </Select>
+          </FormControl>
+
           <Button type="submit" variant="contained" fullWidth>
             Đăng ký
           </Button>

@@ -1,10 +1,20 @@
 import axios from "axios";
 import { JobPayload } from "./types";
 
-const API_URL = `${process.env.REACT_APP_API_BASE_URL}/jobs`;
+const API_URL = `${process.env.REACT_APP_API_URL}/jobs`;
 
-export const fetchJobs = (params: any) => axios.get(API_URL, { params });
-export const createJob = (data: JobPayload) => axios.post(API_URL, data);
-export const updateJob = (id: string, data: JobPayload) => axios.put(`${API_URL}/${id}`, data);
-export const deleteJob = (id: string) => axios.delete(`${API_URL}/${id}`);
-export const fetchJobById = (id: string) => axios.get(`${API_URL}/${id}`);
+export const fetchJobs = (params: any, config?: any) =>
+  axios.get(API_URL, { params, ...config });
+export const createJob = (data: JobPayload, token: string) => {
+  return axios.post(API_URL, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+export const updateJob = (id: string, data: JobPayload, config?: any) =>
+  axios.put(`${API_URL}/${id}`, data, config);
+export const deleteJob = (id: string, config?: any) =>
+  axios.delete(`${API_URL}/${id}`, config);
+export const fetchJobById = (id: string, config?: any) =>
+  axios.get(`${API_URL}/${id}`, config);

@@ -6,6 +6,7 @@ export const registerUser = (data: {
   email: string;
   password: string;
   name: string;
+  role: string;
 }) => {
   return axios.post(`${API_URL}/register`, data);
 };

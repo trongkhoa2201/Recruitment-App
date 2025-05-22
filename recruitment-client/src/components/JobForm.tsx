@@ -3,6 +3,7 @@ import { TextField, Button, Box, Typography } from "@mui/material";
 import { useDispatch } from "react-redux";
 import { createJob, updateJob } from "../features/jobs/jobSlice";
 import { AppDispatch } from "../store/Store";
+import { useNavigate } from "react-router-dom";
 
 interface JobFormProps {
   initialValues: {
@@ -30,6 +31,7 @@ export default function JobForm({
     if (!values.description) errors.description = "Description is required";
     return errors;
   };
+  const navigate = useNavigate();
 
   const handleSubmit = async (
     values: typeof initialValues,
@@ -45,6 +47,7 @@ export default function JobForm({
       alert("Success!");
       resetForm();
       if (onSuccess) onSuccess();
+      navigate("/")
     } catch (err: any) {
       console.error(err);
       alert("Error: " + (err.message || "Unknown error"));

@@ -14,14 +14,20 @@ export const getJobs = createAsyncThunk(
 );
 
 export const deleteJob = createAsyncThunk("jobs/delete", async (id: string) => {
-  await api.deleteJob(id);
+  const token = localStorage.getItem("token");
+  const config = {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+  await api.deleteJob(id, config);
   return id;
 });
 
 export const createJob = createAsyncThunk(
   "jobs/create",
   async (jobData: any) => {
-    const res = await api.createJob(jobData);
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
+    const res = await api.createJob(jobData, token);
     return res.data;
   }
 );
@@ -29,7 +35,11 @@ export const createJob = createAsyncThunk(
 export const updateJob = createAsyncThunk(
   "jobs/update",
   async ({ id, data }: { id: string; data: any }) => {
-    const res = await api.updateJob(id, data);
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    const res = await api.updateJob(id, data, config);
     return res.data;
   }
 );

@@ -11,7 +11,11 @@ import {
 
 import { Link, useNavigate } from "react-router-dom";
 
-const LoginForm: React.FC = () => {
+interface LoginFormProps {
+  onLogin: (userRole: string) => void;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -54,6 +58,9 @@ const LoginForm: React.FC = () => {
       const { token, user } = res;
       localStorage.setItem("token", token);
       localStorage.setItem("username", user.name);
+      localStorage.setItem("user", JSON.stringify(user));
+      onLogin(user.role);
+
       alert("Đăng nhập thành công!");
       navigate("/");
     } catch (err: any) {

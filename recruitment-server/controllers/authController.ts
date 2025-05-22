@@ -8,11 +8,10 @@ interface AuthRequest extends Request {
 }
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password } = req.body;
-  const role = 'user';
+  const { name, email, password, role } = req.body;
 
   try {
-    if (!["admin", "recruiter"].includes(role)) {
+    if (!["user", "recruiter"].includes(role)) {
       res.status(400).json({ message: "Invalid role" });
       return;
     }
