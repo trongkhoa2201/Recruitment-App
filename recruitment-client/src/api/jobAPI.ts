@@ -14,7 +14,9 @@ export const createJob = (data: JobPayload, token: string) => {
 };
 export const updateJob = (id: string, data: JobPayload, config?: any) =>
   axios.put(`${API_URL}/${id}`, data, config);
+
 export const deleteJob = (id: string, config?: any) =>
   axios.delete(`${API_URL}/${id}`, config);
+
 export const fetchJobById = (id: string, config?: any) =>
   axios.get(`${API_URL}/${id}`, config);

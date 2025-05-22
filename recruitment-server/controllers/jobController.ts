@@ -22,9 +22,11 @@ const logAction = async ({
 };
 
 const getUserIdFromRequest = (req: Request): mongoose.Types.ObjectId => {
-  return req.body.userId
-    ? new mongoose.Types.ObjectId(req.body.userId)
-    : new mongoose.Types.ObjectId();
+  const user = (req as any).user;
+  if (user && user.id) {
+    return new mongoose.Types.ObjectId(user.id);
+  }
+  throw new Error("User ID not found in request");
 };
 
 // 🔹 Create
@@ -71,16 +73,20 @@ export const getJobById = async (req: Request, res: Response) => {
   }
 };
 // 🔹 Update
-export const updateJob = async (req: Request, res: Response) => {
+export const updateJob = async (req: Request, res: Response): Promise<void> => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: "Invalid job ID" });
+    res.status(400).json({ message: "Invalid job ID" });
+    return;
   }
 
   try {
     const job = await Job.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
-    if (!job) return res.status(404).json({ message: "Job not found" });
+    if (!job) {
+      res.status(404).json({ message: "Job not found" });
+      return;
+    }
 
     const userId = getUserIdFromRequest(req);
     await logAction({
@@ -97,14 +103,18 @@ export const updateJob = async (req: Request, res: Response) => {
 };
 
 // 🔹 Delete
-export const deleteJob = async (req: Request, res: Response) => {
+export const deleteJob = async (req: Request, res: Response): Promise<void> => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: "Invalid job ID" });
+    res.status(400).json({ message: "Invalid job ID" });
+    return;
   }
 
   try {
     const job = await Job.findByIdAndDelete(req.params.id);
-    if (!job) return res.status(404).json({ message: "Job not found" });
+    if (!job) {
+      res.status(404).json({ message: "Job not found" });
+      return;
+    }
 
     const userId = getUserIdFromRequest(req);
     await logAction({
@@ -116,6 +126,7 @@ export const deleteJob = async (req: Request, res: Response) => {
 
     res.json({ message: "Job deleted" });
   } catch (err) {
+    console.error("Delete failed:", err);
     res.status(500).json({ message: "Delete failed", error: err });
   }
 };

@@ -15,6 +15,7 @@ export const getJobs = createAsyncThunk(
 
 export const deleteJob = createAsyncThunk("jobs/delete", async (id: string) => {
   const token = localStorage.getItem("token");
+  if (!token) throw new Error("No token found");
   const config = {
     headers: { Authorization: `Bearer ${token}` },
   };
@@ -36,6 +37,7 @@ export const updateJob = createAsyncThunk(
   "jobs/update",
   async ({ id, data }: { id: string; data: any }) => {
     const token = localStorage.getItem("token");
+    if (!token) throw new Error("No token found");
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     };
@@ -70,9 +72,15 @@ const jobSlice = createSlice({
       .addCase(deleteJob.fulfilled, (state, action) => {
         state.items = state.items.filter((job) => job._id !== action.payload);
       })
+      .addCase(deleteJob.rejected, (state, action) => {
+        state.error = action.error.message || null;
+      })
 
       .addCase(createJob.fulfilled, (state, action) => {
         state.items.push(action.payload);
+      })
+      .addCase(createJob.rejected, (state, action) => {
+        state.error = action.error.message || null;
       })
 
       .addCase(updateJob.fulfilled, (state, action) => {
@@ -82,6 +90,9 @@ const jobSlice = createSlice({
         if (index !== -1) {
           state.items[index] = action.payload;
         }
+      })
+      .addCase(updateJob.rejected, (state, action) => {
+        state.error = action.error.message || null;
       });
   },
 });
