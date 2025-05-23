@@ -6,6 +6,11 @@
   width: 100%;
   height: auto;
 }
+.header-right{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
 .DropdownContainer {
   display: flex;
   justify-content: flex-end;

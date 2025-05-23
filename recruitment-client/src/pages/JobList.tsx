@@ -5,6 +5,7 @@ import { AppDispatch, RootState } from "../store/Store";
 import { getJobs, deleteJob } from "../features/jobs/jobSlice";
 import { useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
+import NotificationJobLog from "../components/NotificationJobLog";
 import "../styles/jobList.css";
 
 export default function JobList({ role }: { role: string }) {
@@ -38,7 +39,11 @@ export default function JobList({ role }: { role: string }) {
   }, [dispatch]);
 
   const handleDelete = async (id: string) => {
-    if (window.confirm("Are you sure you want to delete this job? This action cannot be undone.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this job? This action cannot be undone."
+      )
+    ) {
       await dispatch(deleteJob(id));
     }
   };
@@ -51,7 +56,11 @@ export default function JobList({ role }: { role: string }) {
   };
 
   const handleDeleteSelected = async () => {
-    if (window.confirm(`Are you sure you want to delete ${selectedJobs.length} jobs? This action cannot be undone.`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to delete ${selectedJobs.length} jobs? This action cannot be undone.`
+      )
+    ) {
       for (const id of selectedJobs) {
         await dispatch(deleteJob(id));
       }
@@ -83,7 +92,7 @@ export default function JobList({ role }: { role: string }) {
   );
 
   return (
-    <div className="container">
+    <div className="container" style={{ position: "relative" }}>
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -91,30 +100,34 @@ export default function JobList({ role }: { role: string }) {
         mb={3}
       >
         <Typography variant="h4">Job List</Typography>
-        <Dropdown>
-          <Dropdown.Toggle variant="light" id="dropdown-user">
-            Settings
-          </Dropdown.Toggle>
-          <Dropdown.Menu align="end">
-            {token ? (
-              <>
-                <Dropdown.Item onClick={() => navigate("/profile")}>
-                  {shortName}
-                </Dropdown.Item>
-                <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
-              </>
-            ) : (
-              <>
-                <Dropdown.Item onClick={() => navigate("/login")}>
-                  Login
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => navigate("/register")}>
-                  Register
-                </Dropdown.Item>
-              </>
-            )}
-          </Dropdown.Menu>
-        </Dropdown>
+        <div className="header-right">
+          <Dropdown>
+            <Dropdown.Toggle variant="light" id="dropdown-user">
+              Settings
+            </Dropdown.Toggle>
+            <Dropdown.Menu align="end">
+              {token ? (
+                <>
+                  <Dropdown.Item onClick={() => navigate("/profile")}>
+                    {shortName}
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                </>
+              ) : (
+                <>
+                  <Dropdown.Item onClick={() => navigate("/login")}>
+                    Login
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate("/register")}>
+                    Register
+                  </Dropdown.Item>
+                </>
+              )}
+            </Dropdown.Menu>
+          </Dropdown>
+
+            <NotificationJobLog />
+        </div>
       </Stack>
       <Stack
         direction="row"
