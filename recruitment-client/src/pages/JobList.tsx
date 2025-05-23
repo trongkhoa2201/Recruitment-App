@@ -157,7 +157,7 @@ export default function JobList({ role }: { role: string }) {
           <table className="table-container">
             <thead>
               <tr className="table-header">
-                <th className="th-table"></th>
+                {role === "recruiter" && <th className="th-table"></th>}
                 <th className="th-table">Title</th>
                 <th className="th-table">Description</th>
                 <th className="th-table">Tags</th>
