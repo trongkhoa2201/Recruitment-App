@@ -14,7 +14,7 @@ const NotificationJobLog: React.FC = () => {
   }, [open, dispatch]);
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="position-relative inline-block text-left">
       {/* Notification Button */}
       <button
         onClick={() => setOpen(!open)}
@@ -28,7 +28,7 @@ const NotificationJobLog: React.FC = () => {
       {/* Dropdown Menu */}
       {open && (
         <div
-          className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 z-500"
+          className="position-absolute right-0 mt-2 w-64 bg-white border border-gray-300 z-500"
           style={{ borderRadius: "4px" }}
         >
           {/* Notification List with Scroll */}

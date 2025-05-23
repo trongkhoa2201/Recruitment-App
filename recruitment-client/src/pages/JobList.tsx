@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
 import NotificationJobLog from "../components/NotificationJobLog";
 import "../styles/jobList.css";
+import { Modal } from "react-bootstrap";
 
 export default function JobList({ role }: { role: string }) {
   const dispatch = useDispatch<AppDispatch>();
@@ -38,14 +39,8 @@ export default function JobList({ role }: { role: string }) {
     dispatch(getJobs({}));
   }, [dispatch]);
 
-  const handleDelete = async (id: string) => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this job? This action cannot be undone."
-      )
-    ) {
-      await dispatch(deleteJob(id));
-    }
+  const handleDelete = (id: string) => {
+    confirmDelete([id]);
   };
 
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
@@ -55,16 +50,9 @@ export default function JobList({ role }: { role: string }) {
     );
   };
 
-  const handleDeleteSelected = async () => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${selectedJobs.length} jobs? This action cannot be undone.`
-      )
-    ) {
-      for (const id of selectedJobs) {
-        await dispatch(deleteJob(id));
-      }
-      setSelectedJobs([]);
+  const handleDeleteSelected = () => {
+    if (selectedJobs.length > 0) {
+      confirmDelete(selectedJobs);
     }
   };
 
@@ -91,6 +79,23 @@ export default function JobList({ role }: { role: string }) {
     page * rowsPerPage + rowsPerPage
   );
 
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [deleteTargetIds, setDeleteTargetIds] = useState<string[]>([]);
+
+  const confirmDelete = (ids: string[]) => {
+    setDeleteTargetIds(ids);
+    setShowConfirm(true);
+  };
+  const confirmDeleteAction = async () => {
+    for (const id of deleteTargetIds) {
+      await dispatch(deleteJob(id));
+    }
+    setSelectedJobs((prev) =>
+      prev.filter((id) => !deleteTargetIds.includes(id))
+    );
+    setShowConfirm(false);
+  };
+
   return (
     <div className="container" style={{ position: "relative" }}>
       <Stack
@@ -101,6 +106,7 @@ export default function JobList({ role }: { role: string }) {
       >
         <Typography variant="h4">Job List</Typography>
         <div className="header-right">
+          {role === "recruiter" && <NotificationJobLog />}
           <Dropdown>
             <Dropdown.Toggle variant="light" id="dropdown-user">
               Settings
@@ -125,7 +131,6 @@ export default function JobList({ role }: { role: string }) {
               )}
             </Dropdown.Menu>
           </Dropdown>
-            {role === "recruiter" && <NotificationJobLog />}           
         </div>
       </Stack>
       <Stack
@@ -273,6 +278,35 @@ export default function JobList({ role }: { role: string }) {
                 </option>
               ))}
             </select>
+
+            <Modal
+              show={showConfirm}
+              onHide={() => setShowConfirm(false)}
+              centered
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Confirm Delete</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Are you sure you want to delete {deleteTargetIds.length} job
+                {deleteTargetIds.length > 1 ? "s" : ""}? This action cannot be
+                undone.
+              </Modal.Body>
+              <Modal.Footer>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={confirmDeleteAction}
+                >
+                  Confirm Delete
+                </button>
+              </Modal.Footer>
+            </Modal>
           </div>
         </div>
       )}
