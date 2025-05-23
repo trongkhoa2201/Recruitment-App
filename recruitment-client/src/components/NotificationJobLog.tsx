@@ -22,7 +22,6 @@ const NotificationJobLog: React.FC = () => {
         style={{ borderRadius: "4px" }}
       >
         Notifications
-
       </button>
 
       {/* Dropdown Menu */}
@@ -32,7 +31,10 @@ const NotificationJobLog: React.FC = () => {
           style={{ borderRadius: "4px" }}
         >
           {/* Notification List with Scroll */}
-          <div className="max-h-60 overflow-y-auto">
+          <div
+            className="max-h-60 overflow-y-auto"
+            style={{ maxHeight: "500px", width: "400px"}}
+          >
             {loading ? (
               <div className="px-2 py-1 text-gray-500">Loading...</div>
             ) : logs.length === 0 ? (
