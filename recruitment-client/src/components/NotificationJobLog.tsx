@@ -18,7 +18,7 @@ const NotificationJobLog: React.FC = () => {
       {/* Notification Button */}
       <button
         onClick={() => setOpen(!open)}
-        className="px-4 py-1 bg-gray-100 border border-gray-300 text-black font-medium hover:bg-gray-200 transition-colors"
+        className="px-4 py-1 bg-gray-100 border border-none text-black font-medium hover:bg-gray-200 transition-colors"
         style={{ borderRadius: "4px" }}
       >
         Notifications
@@ -28,7 +28,7 @@ const NotificationJobLog: React.FC = () => {
       {/* Dropdown Menu */}
       {open && (
         <div
-          className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 shadow-lg z-50"
+          className="absolute right-0 mt-2 w-64 bg-white border border-gray-300 z-500"
           style={{ borderRadius: "4px" }}
         >
           {/* Notification List with Scroll */}

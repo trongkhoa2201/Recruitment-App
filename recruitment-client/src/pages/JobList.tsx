@@ -125,8 +125,7 @@ export default function JobList({ role }: { role: string }) {
               )}
             </Dropdown.Menu>
           </Dropdown>
-
-            <NotificationJobLog />
+            {role === "recruiter" && <NotificationJobLog />}           
         </div>
       </Stack>
       <Stack
