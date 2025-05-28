@@ -14,12 +14,26 @@ const NotificationJobLog: React.FC = () => {
   }, [open, dispatch]);
 
   return (
-    <div className="position-relative inline-block text-left">
+    <div
+      style={{
+        position: "relative",
+        display: "inline-block",
+        textAlign: "left",
+      }}
+    >
       {/* Notification Button */}
       <button
         onClick={() => setOpen(!open)}
-        className="px-4 py-1 bg-gray-100 border border-none text-black font-medium hover:bg-gray-200 transition-colors"
-        style={{ borderRadius: "4px" }}
+        style={{
+          padding: "8px 16px",
+          backgroundColor: "#f8f9fa",
+          border: "none",
+          borderRadius: "4px",
+          cursor: "pointer",
+          transition: "background-color 0.2s",
+        }}
+        onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#e5e7eb")}
+        onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
       >
         Notifications
       </button>
@@ -27,29 +41,66 @@ const NotificationJobLog: React.FC = () => {
       {/* Dropdown Menu */}
       {open && (
         <div
-          className="position-absolute right-0 mt-2 w-64 bg-white border border-gray-300 z-500"
-          style={{ borderRadius: "4px" }}
+          style={{
+            position: "absolute",
+            right: 0,
+            top: "100%",
+            marginTop: "8px",
+            width: "300px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #e5e7eb",
+            borderRadius: "4px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+            zIndex: 50,
+          }}
         >
           {/* Notification List with Scroll */}
-          <div
-            className="max-h-60 overflow-y-auto"
-            style={{ maxHeight: "500px", width: "400px"}}
-          >
+          <div style={{ maxHeight: "240px", overflowY: "auto", width: "100%" }}>
             {loading ? (
-              <div className="px-2 py-1 text-gray-500">Loading...</div>
+              <div
+                style={{
+                  padding: "8px 12px",
+                  color: "#6b7280",
+                  fontSize: "14px",
+                }}
+              >
+                Loading...
+              </div>
             ) : logs.length === 0 ? (
-              <div className="px-2 py-1 text-gray-500">No notifications</div>
+              <div
+                style={{
+                  padding: "8px 12px",
+                  color: "#6b7280",
+                  fontSize: "14px",
+                }}
+              >
+                No notifications
+              </div>
             ) : (
-              <ul>
-                {logs.map((log) => (
+              <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
+                {logs.map((log, index) => (
                   <li
                     key={log._id}
-                    className="px-2 py-1 border-b border-gray-100 text-sm"
+                    style={{
+                      padding: "8px 12px",
+                      borderBottom:
+                        index === logs.length - 1
+                          ? "none"
+                          : "1px solid #e5e7eb",
+                    }}
                   >
-                    <p className="text-gray-700">
-                      {log.action}: {log.description}
+                    <p
+                      style={{ color: "#374151", fontSize: "14px", margin: 0 }}
+                    >
+                      {log.description}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p
+                      style={{
+                        color: "#6b7280",
+                        fontSize: "12px",
+                        margin: "2px 0 0",
+                      }}
+                    >
                       {new Date(log.timestamp).toLocaleTimeString()}
                     </p>
                   </li>
